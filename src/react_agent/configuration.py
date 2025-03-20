@@ -22,6 +22,31 @@ class Configuration:
         },
     )
 
+    gather_user_experience_prompt: str = field(
+        default=prompts.GATHER_USER_EXPERIENCE_PROMPT,
+        metadata={
+            "description": "This agent prompt is used to gather user experience. "
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
+    graph_theory: str = field(
+        default=prompts.GPRAH_THEORY_PROMPT,
+        metadata={
+            "description": "This agent prompt is used for teaching graph theory. "
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
+    graph_theory_assessment: str = field(
+        default=prompts.GPRAH_THEORY_PROMPT,
+        metadata={
+            "description": "This agent prompt is used for assessing whether the user is proficient in graph theory. "
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
+
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-3-5-sonnet-20240620",
         metadata={
