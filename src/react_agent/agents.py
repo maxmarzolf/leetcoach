@@ -3,6 +3,7 @@ from typing import  List, Dict, Literal, cast
 
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, HumanMessage
+from langgraph.types import interrupt
 
 from react_agent.configuration import Configuration
 from react_agent.utils import load_chat_model
@@ -11,9 +12,6 @@ from react_agent.state import State
 
 
 async def gather_user_experience(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
-    """
-    Agent responsible for gathering user experience level
-    """
     configuration = Configuration.from_runnable_config(config)
 
     model = load_chat_model(configuration.model)
@@ -28,16 +26,6 @@ async def gather_user_experience(state: State, config: RunnableConfig) -> Dict[s
             [{"role": "system", "content": system_message}, *state.messages], config
         ),
     )
-
-    if state.is_last_step and response.tool_calls:
-        return {
-            "messages": [
-                AIMessage(
-                    id=response.id,
-                    content="Sorry, I could not find an answer to your question in the specified number of steps.",
-                )
-            ]
-        }
 
     return {"messages": [response]}
 
@@ -93,3 +81,31 @@ async def graph_theory_assessment(state: State, config: RunnableConfig) -> Liter
     else:
         return "graph_theory_tutor"
 
+
+async def tree_theory_tutor(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
+    configuration = Configuration.from_runnable_config(config)
+
+    model = load_chat_model(configuration.model)
+
+    system_message = configuration.tree_theory_tutor.format(
+        system_time=datetime.now(tz=timezone.utc).isoformat()
+    )
+
+    response = cast(
+        AIMessage,
+        await model.ainvoke(
+            [{"role": "system", "content": system_message}, *state.messages], config
+        ),
+    )
+
+    if state.is_last_step and response.tool_calls:
+        return {
+            "messages": [
+                AIMessage(
+                    id=response.id,
+                    content="Sorry, I could not find an answer to your question in the specified number of steps.",
+                )
+            ]
+        }
+
+    return {"messages": [response]}

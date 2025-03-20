@@ -46,6 +46,14 @@ class Configuration:
         },
     )
 
+    tree_theory_tutor: str = field(
+        default=prompts.GPRAH_THEORY_PROMPT,
+        metadata={
+            "description": "This agent prompt is used for assessing whether the user is proficient in hierarchical graphs. "
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
 
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-3-5-sonnet-20240620",
@@ -63,9 +71,7 @@ class Configuration:
     )
 
     @classmethod
-    def from_runnable_config(
-        cls, config: Optional[RunnableConfig] = None
-    ) -> Configuration:
+    def from_runnable_config(cls, config: Optional[RunnableConfig] = None) -> Configuration:
         """Create a Configuration instance from a RunnableConfig object."""
         config = ensure_config(config)
         configurable = config.get("configurable") or {}
