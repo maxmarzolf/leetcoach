@@ -58,16 +58,6 @@ async def graph_theory_tutor(state: State, config: RunnableConfig) -> Dict[str, 
         ),
     )
 
-    if state.is_last_step and response.tool_calls:
-        return {
-            "messages": [
-                AIMessage(
-                    id=response.id,
-                    content="Sorry, I could not find an answer to your question in the specified number of steps.",
-                )
-            ]
-        }
-
     return {"messages": [response]}
 
 
@@ -108,15 +98,5 @@ async def tree_theory_tutor(state: State, config: RunnableConfig) -> Dict[str, L
             [{"role": "system", "content": system_message}, *state.messages], config
         ),
     )
-
-    if state.is_last_step and response.tool_calls:
-        return {
-            "messages": [
-                AIMessage(
-                    id=response.id,
-                    content="Sorry, I could not find an answer to your question in the specified number of steps.",
-                )
-            ]
-        }
 
     return {"messages": [response]}
