@@ -7,8 +7,19 @@ from langgraph.types import interrupt
 
 from react_agent.configuration import Configuration
 from react_agent.utils import load_chat_model
-from react_agent.state import State
+from react_agent.state import State, HumanInput
 
+
+def ask_human(state: State, config: RunnableConfig) -> Literal["graph_theory_tutor", "tree_theory_tutor"]:
+    response = interrupt("Please provide feedback:")
+
+    last_message = state.messages[-1]
+    if 'graph theory' in last_message:
+        return "graph_theory_tutor"
+    else:
+        return 'tree_theory_tutor'
+    # else:
+    #     return {"human_input": [response]}
 
 
 async def gather_user_experience(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
