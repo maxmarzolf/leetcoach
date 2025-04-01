@@ -22,6 +22,7 @@ class InputState:
 @dataclass
 class State(InputState):
     is_last_step: IsLastStep = field(default=False)
+    selector: str = field(default='')
     
     
 @dataclass

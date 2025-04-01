@@ -4,35 +4,33 @@ from langgraph.graph import StateGraph
 
 from react_agent.configuration import Configuration
 from react_agent.state import InputState, State
-from react_agent.agents import ask_human, gather_user_experience, graph_theory_tutor, graph_theory_assessment, tree_theory_tutor
+from react_agent.agents import ask_human, selector, clone_graph_conceptual, clone_graph_code, clone_graph_real_world
 
 
 builder = StateGraph(State, input=InputState, config_schema=Configuration)
 
-builder.add_node(gather_user_experience)
 builder.add_node(ask_human)
-builder.add_node(graph_theory_tutor)
-builder.add_node(tree_theory_tutor)
 
-# builder.add_node(graph_theory_assessment)
-
-builder.add_edge("__start__", "gather_user_experience")
-builder.add_edge("gather_user_experience", "ask_human")
-builder.add_conditional_edges("ask_human", graph_theory_tutor)
-builder.add_conditional_edges("ask_human", tree_theory_tutor)
-
-builder.add_edge("graph_theory_tutor", "ask_human")
-builder.add_edge("tree_theory_tutor", "ask_human")
-
-builder.add_edge("graph_theory_tutor", "__end__")
-builder.add_edge("tree_theory_tutor", "__end__")
+builder.add_node(clone_graph_conceptual)
+builder.add_node(clone_graph_code)
+builder.add_node(clone_graph_real_world)
 
 
+builder.add_conditional_edges("__start__", selector)
 
-# builder.add_edge("gather_user_experience", "graph_theory_tutor")
-# builder.add_edge("gather_user_experience", "tree_theory_tutor")
-# builder.add_edge("graph_theory_tutor", "graph_theory_assessment")
-# builder.add_edge("graph_theory_assessment", "graph_theory_tutor")
+builder.add_edge("clone_graph_conceptual", "ask_human")
+# builder.add_edge("ask_human", "clone_graph_conceptual")
+
+builder.add_edge("clone_graph_code", "ask_human")
+# builder.add_edge("ask_human", "clone_graph_code")
+
+builder.add_edge("clone_graph_real_world", "ask_human")
+# builder.add_edge("ask_human", "clone_graph_real_world")
+
+builder.add_conditional_edges("ask_human", selector)
+
+
+builder.add_edge("ask_human", "__end__")
 
 graph = builder.compile(
     interrupt_before=[],

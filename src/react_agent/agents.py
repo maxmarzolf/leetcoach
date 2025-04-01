@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from typing import  List, Dict, Literal, cast
+import random
 
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, HumanMessage
@@ -11,23 +12,28 @@ from react_agent.state import State, HumanInput
 
 
 def ask_human(state: State, config: RunnableConfig) -> Literal["graph_theory_tutor", "tree_theory_tutor"]:
-    response = interrupt("Please provide feedback:")
+    response = interrupt("Please provide input:")
+    return {"human_input": [response]}
 
-    last_message = state.messages[-1]
-    if 'graph theory' in last_message:
-        return "graph_theory_tutor"
+
+def selector(state: State) -> Literal["clone_graph_conceptual", "clone_graph_code", "clone_graph_real_world"]:
+    options = ["clone_graph_conceptual", "clone_graph_code", "clone_graph_real_world"]
+    print('BOBS HERE')
+    print(state.selector)
+    print('BOBS HERE')
+
+    if len(state.selector) > 0:
+        return state.selector
     else:
-        return 'tree_theory_tutor'
-    # else:
-    #     return {"human_input": [response]}
+        return random.choice(options)
 
 
-async def gather_user_experience(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
+async def clone_graph_conceptual(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
 
     model = load_chat_model(configuration.model)
 
-    system_message = configuration.gather_user_experience_prompt.format(
+    system_message = configuration.CLONE_GRAPH_133_CONCEPTUAL.format(
         system_time=datetime.now(tz=timezone.utc).isoformat()
     )
 
@@ -38,16 +44,15 @@ async def gather_user_experience(state: State, config: RunnableConfig) -> Dict[s
         ),
     )
 
-    return {"messages": [response]}
+    return {"messages": [response], 'selector': 'clone_graph_conceptual'}
 
 
-
-async def graph_theory_tutor(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
+async def clone_graph_code(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
 
     model = load_chat_model(configuration.model)
 
-    system_message = configuration.graph_theory.format(
+    system_message = configuration.CLONE_GRAPH_133_CODE.format(
         system_time=datetime.now(tz=timezone.utc).isoformat()
     )
 
@@ -58,14 +63,15 @@ async def graph_theory_tutor(state: State, config: RunnableConfig) -> Dict[str, 
         ),
     )
 
-    return {"messages": [response]}
+    return {"messages": [response], 'selector': 'clone_graph_code'}
 
 
-async def graph_theory_assessment(state: State, config: RunnableConfig) -> Literal["__end__", "graph_theory_tutor"]:
+async def clone_graph_real_world(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
+
     model = load_chat_model(configuration.model)
 
-    system_message = configuration.graph_theory_assessment.format(
+    system_message = configuration.CLONE_GRAPH_133_REAL_WORLD.format(
         system_time=datetime.now(tz=timezone.utc).isoformat()
     )
 
@@ -76,27 +82,4 @@ async def graph_theory_assessment(state: State, config: RunnableConfig) -> Liter
         ),
     )
 
-    # Check if the agent has determined the user is sufficiently prepared.
-    if "user is sufficiently prepared" in response.content.lower():
-        return "__end__"
-    else:
-        return "graph_theory_tutor"
-
-
-async def tree_theory_tutor(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
-    configuration = Configuration.from_runnable_config(config)
-
-    model = load_chat_model(configuration.model)
-
-    system_message = configuration.tree_theory_tutor.format(
-        system_time=datetime.now(tz=timezone.utc).isoformat()
-    )
-
-    response = cast(
-        AIMessage,
-        await model.ainvoke(
-            [{"role": "system", "content": system_message}, *state.messages], config
-        ),
-    )
-
-    return {"messages": [response]}
+    return {"messages": [response], 'selector': 'clone_graph_code'}

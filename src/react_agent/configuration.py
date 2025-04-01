@@ -53,6 +53,29 @@ class Configuration:
             "This prompt sets the context and behavior for the agent."
         },
     )
+    CLONE_GRAPH_133_CONCEPTUAL: str = field(
+        default=prompts.CLONE_GRAPH_133_CONCEPTUAL,
+        metadata={
+            "description": "This agent prompt is used for training the clone graph problem."
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
+    CLONE_GRAPH_133_CODE: str = field(
+        default=prompts.CLONE_GRAPH_133_CODE,
+        metadata={
+            "description": "This agent prompt is used for training the clone graph code problem."
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
+    CLONE_GRAPH_133_REAL_WORLD: str = field(
+        default=prompts.CLONE_GRAPH_133_REAL_WORLD,
+        metadata={
+            "description": "This agent prompt is used for training the clone graph problem and highlights real world use cases."
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
 
 
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
