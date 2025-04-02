@@ -23,8 +23,9 @@ class InputState:
 class State(InputState):
     is_last_step: IsLastStep = field(default=False)
     selector: str = field(default='')
-    
+    reasoning_type: str = field(default='')
     
 @dataclass
 class HumanInput(BaseModel):
     human_input: str
+    

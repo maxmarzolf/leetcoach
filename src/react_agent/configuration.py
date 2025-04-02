@@ -14,45 +14,7 @@ from react_agent import prompts
 class Configuration:
     """The configuration for the agent."""
 
-    system_prompt: str = field(
-        default=prompts.SYSTEM_PROMPT,
-        metadata={
-            "description": "The system prompt to use for the agent's interactions. "
-            "This prompt sets the context and behavior for the agent."
-        },
-    )
 
-    gather_user_experience_prompt: str = field(
-        default=prompts.GATHER_USER_EXPERIENCE_PROMPT,
-        metadata={
-            "description": "This agent prompt is used to gather user experience. "
-            "This prompt sets the context and behavior for the agent."
-        },
-    )
-
-    graph_theory: str = field(
-        default=prompts.GPRAH_THEORY_PROMPT,
-        metadata={
-            "description": "This agent prompt is used for teaching graph theory. "
-            "This prompt sets the context and behavior for the agent."
-        },
-    )
-
-    graph_theory_assessment: str = field(
-        default=prompts.GPRAH_THEORY_PROMPT,
-        metadata={
-            "description": "This agent prompt is used for assessing whether the user is proficient in graph theory. "
-            "This prompt sets the context and behavior for the agent."
-        },
-    )
-
-    tree_theory_tutor: str = field(
-        default=prompts.GPRAH_THEORY_PROMPT,
-        metadata={
-            "description": "This agent prompt is used for assessing whether the user is proficient in hierarchical graphs. "
-            "This prompt sets the context and behavior for the agent."
-        },
-    )
     CLONE_GRAPH_133_CONCEPTUAL: str = field(
         default=prompts.CLONE_GRAPH_133_CONCEPTUAL,
         metadata={
@@ -76,6 +38,16 @@ class Configuration:
             "This prompt sets the context and behavior for the agent."
         },
     )
+
+    CLONE_GRAPH_133_ASSESSMENT: str = field(
+        default=prompts.CLONE_GRAPH_133_ASSESSMENT,
+        metadata={
+            "description": "This agent prompt is used for assessing whether the user can move to a new node."
+            "This prompt sets the context and behavior for the agent."
+        },
+    )
+
+
 
 
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
