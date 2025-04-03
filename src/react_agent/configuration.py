@@ -14,7 +14,6 @@ from react_agent import prompts
 class Configuration:
     """The configuration for the agent."""
 
-
     CLONE_GRAPH_133_CONCEPTUAL: str = field(
         default=prompts.CLONE_GRAPH_133_CONCEPTUAL,
         metadata={
@@ -47,11 +46,8 @@ class Configuration:
         },
     )
 
-
-
-
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
-        default="anthropic/claude-3-5-sonnet-20240620",
+        default="openai/gpt-4o-mini-2024-07-18",
         metadata={
             "description": "The name of the language model to use for the agent's main interactions. "
             "Should be in the form: provider/model-name."

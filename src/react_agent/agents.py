@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import  List, Dict, Literal, cast
+from typing import List, Dict, Literal, cast
 import random
 
 from langchain_core.runnables import RunnableConfig
@@ -17,13 +17,18 @@ def ask_human(state: State, config: RunnableConfig) -> Literal["graph_theory_tut
 
 
 def selector(state: State) -> Literal["clone_graph_conceptual", "clone_graph_code", "clone_graph_real_world"]:
-    options = ["clone_graph_conceptual", "clone_graph_code", "clone_graph_real_world"]
+    options = ["clone_graph_conceptual",
+               "clone_graph_code", "clone_graph_real_world"]
 
-    if len(state.selector) > 0:
-        return state.selector
+    if len(state.current_node) > 0:
+        return state.current_node
     else:
         return random.choice(options)
-    
+
+
+def assessment_router(state: State) -> Literal["clone_graph_conceptual", "clone_graph_code", "clone_graph_real_world", "ask_human"]:
+    return state.next_node
+
 
 async def clone_graph_conceptual(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
@@ -41,7 +46,7 @@ async def clone_graph_conceptual(state: State, config: RunnableConfig) -> Dict[s
         ),
     )
 
-    return {"messages": [response], 'selector': 'clone_graph_conceptual'}
+    return {"messages": [response], 'current_node': 'clone_graph_conceptual'}
 
 
 async def clone_graph_code(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
@@ -60,7 +65,7 @@ async def clone_graph_code(state: State, config: RunnableConfig) -> Dict[str, Li
         ),
     )
 
-    return {"messages": [response], 'selector': 'clone_graph_code'}
+    return {"messages": [response], 'current_node': 'clone_graph_code'}
 
 
 async def clone_graph_real_world(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
@@ -79,10 +84,37 @@ async def clone_graph_real_world(state: State, config: RunnableConfig) -> Dict[s
         ),
     )
 
-    return {"messages": [response], 'selector': 'clone_graph_code'}
+    return {
+        "messages": state.messages + [response],
+        'current_node': 'clone_graph_real_world',
+        "next_node": state.next_node,
+        "first_pass": state.first_pass
+    }
 
 
-async def clone_graph_assessment(state: State, config: RunnableConfig) -> Command[Literal['ask_human', 'clone_graph_conceptual', 'clone_graph_code', 'clone_graph_real_world']]:
+async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
+    """
+    Updates the state. MUST set state.next_node for the assessment_router().
+    """
+    # State: {[], "__start__", "", True}
+    messages = state.messages
+    next_node = ""
+    current_node = state.current_node
+    first_pass = state.first_pass
+
+    if state.first_pass == True:
+        print("-----------------")
+        print("STATE.FIRST_PASS == TRUE")
+        print("-----------------")
+        next_node = "ask_human"
+        return {
+            "messages": messages,
+            "next_node": next_node,
+            "current_node": current_node,
+            "first_pass": False,
+        }
+
+    # check if answer was correct/good enough to move on
     configuration = Configuration.from_runnable_config(config)
 
     model = load_chat_model(configuration.model)
@@ -90,6 +122,7 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> Comman
     system_message = configuration.CLONE_GRAPH_133_ASSESSMENT.format(
         system_time=datetime.now(tz=timezone.utc).isoformat()
     )
+
     response = cast(
         AIMessage,
         await model.ainvoke(
@@ -97,46 +130,49 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> Comman
         ),
     )
 
+    # conditionals
 
-    print("BOBS HERE1")
-    print(response)
-    print("BOBS HERE1")
+    # if good response: next question node
+    # if bad response: same question node
 
-    print("BOBS HERE2")
-    print(state.selector)
-    print("BOBS HERE2")
+    """
+    It seems like you're starting to implement the depth-first search (DFS) approach, but I would need a bit more detail to evaluate your performance effectively. Could you please share a more complete code snippet or your thought process behind your implementation? 
 
-    print("BOBS HERE3")
-    print(state)
-    print("BOBS HERE3")
+    Here are some guiding questions to help you elaborate:
 
-    print('1')
+    1. **Base Case Handling**: How are you planning to check if the node is None? 
+    2. **Visited Dictionary**: Do you have a strategy to keep track of already cloned nodes to avoid infinite loops?
+    3. **Cloning Logic**: How do you intend to clone the current node and its neighbors?
 
+    Feel free to provide any part of your code or explanation, and I’ll assess your proficiency based on that!
+    """
 
+    return {
+        "messages": messages + [response],
+        "next_node": current_node,  # KeyError('')
+        "current_node": current_node,
+        "first_pass": first_pass
+    }  # go back to previous question node
 
+    """
     if len(state.reasoning_type) == 0:
         next_node = 'ask_human'
-        print('2')
-
+    # __start__ -> random clone -> assessment - pass -> human/questions -> assessment - parse
+    if state.messages[-1].type == "ai":
+        next_node = "ask_human"
 
     if 'proficient' in response.content and state.selector == 'clone_graph_conceptual':
-        reasoning_type = random.choice(['clone_graph_code', 'clone_graph_real_world'])
+        reasoning_type = random.choice(
+            ['clone_graph_code', 'clone_graph_real_world'])
         next_node = reasoning_type
-        print('3')
 
-    
     if 'proficient' in response.content and state.selector == 'clone_graph_code':
-        reasoning_type = random.choice(['clone_graph_conceptual', 'clone_graph_real_world'])
+        reasoning_type = random.choice(
+            ['clone_graph_conceptual', 'clone_graph_real_world'])
         next_node = reasoning_type
-        print('4')
 
-        
     if 'proficient' in response.content and state.selector == 'clone_graph_real_world':
-        reasoning_type = random.choice(['clone_graph_conceptual', 'clone_graph_code'])
-        next_node = reasoning_type
-        print('5')
-
-    print('6')
-    # return Command(update={"reasoning_type": next_node}, goto=next_node) 
-    return {"reasoning_type": next_node}
-
+        reasoning_type = random.choice(
+            ['clone_graph_conceptual', 'clone_graph_code'])
+        next_node = reasoning_type"
+    """

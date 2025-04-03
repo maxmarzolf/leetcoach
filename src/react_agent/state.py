@@ -12,6 +12,7 @@ from typing_extensions import Annotated
 
 from pydantic import BaseModel
 
+
 @dataclass
 class InputState:
     messages: Annotated[Sequence[AnyMessage], add_messages] = field(
@@ -21,11 +22,11 @@ class InputState:
 
 @dataclass
 class State(InputState):
-    is_last_step: IsLastStep = field(default=False)
-    selector: str = field(default='')
-    reasoning_type: str = field(default='')
-    
+    current_node: str = field(default='')
+    next_node: str = field(default='__start__')
+    first_pass: bool = field(default=True)
+
+
 @dataclass
 class HumanInput(BaseModel):
     human_input: str
-    
