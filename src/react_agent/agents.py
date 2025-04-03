@@ -11,7 +11,7 @@ from react_agent.utils import load_chat_model
 from react_agent.state import State
 
 
-def ask_human(state: State, config: RunnableConfig) -> Literal["graph_theory_tutor", "tree_theory_tutor"]:
+def ask_human() -> Literal["graph_theory_tutor", "tree_theory_tutor"]:
     response = interrupt("Please provide input:")
     return {"human_input": [response]}
 
@@ -49,8 +49,7 @@ async def clone_graph_conceptual(state: State, config: RunnableConfig) -> Dict[s
     return {
         "messages": state.messages + [response],
         'current_node': 'clone_graph_conceptual',
-        "next_node": state.next_node,
-        "human_required": state.human_required,
+        "next_node": state.next_node
     }
 
 
@@ -73,8 +72,7 @@ async def clone_graph_code(state: State, config: RunnableConfig) -> Dict[str, Li
     return {
         "messages": state.messages + [response],
         'current_node': 'clone_graph_code',
-        "next_node": state.next_node,
-        "human_required": state.human_required,
+        "next_node": state.next_node
     }
 
 
@@ -97,8 +95,7 @@ async def clone_graph_real_world(state: State, config: RunnableConfig) -> Dict[s
     return {
         "messages": state.messages + [response],
         'current_node': 'clone_graph_real_world',
-        "next_node": state.next_node,
-        "human_required": state.human_required,
+        "next_node": state.next_node
     }
 
 
@@ -109,7 +106,6 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
     messages = state.messages
     next_node = ""
     current_node = state.current_node
-    human_required = state.human_required
 
 
     configuration = Configuration.from_runnable_config(config)
@@ -132,8 +128,7 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
         return {
             "messages": messages + [response],
             "next_node": next_node, 
-            "current_node": current_node,
-            "human_required": human_required
+            "current_node": current_node
         }  
 
     elif 'evaluation: user is proficient' in response.content and state.current_node == 'clone_graph_code':
@@ -142,8 +137,7 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
         return {
             "messages": messages + [response],
             "next_node": next_node, 
-            "current_node": current_node,
-            "human_required": human_required
+            "current_node": current_node
         }  
 
     elif 'evaluation: user is proficient' in response.content and state.current_node == 'clone_graph_real_world':
@@ -152,8 +146,7 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
         return {
             "messages": messages + [response],
             "next_node": next_node, 
-            "current_node": current_node,
-            "human_required": human_required
+            "current_node": current_node
         }
     
     else:
@@ -161,8 +154,7 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
         return {
             "messages": messages + [response],
             "next_node": current_node, 
-            "current_node": current_node,
-            "human_required": human_required
+            "current_node": current_node
         }  
 
 
