@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List, Dict, Literal, cast
+from typing import List, Dict, Literal, cast, Optional
 import random
 
 from langchain_core.runnables import RunnableConfig
@@ -11,9 +11,9 @@ from react_agent.utils import load_chat_model
 from react_agent.state import State
 
 
-def ask_human() -> Literal["graph_theory_tutor", "tree_theory_tutor"]:
-    response = interrupt("Please provide input:")
-    return {"human_input": [response]}
+async def ask_human(state: State) -> HumanMessage:
+    response = interrupt("Please provide input")
+    return HumanMessage(content=response)
 
 
 def selector(state: State) -> Literal["clone_graph_conceptual", "clone_graph_code", "clone_graph_real_world"]:
