@@ -19,16 +19,16 @@ builder.add_node(clone_graph_real_world)
 
 builder.add_conditional_edges("__start__", selector)
 
-builder.add_edge("clone_graph_conceptual", 'clone_graph_assessment')
-builder.add_edge("clone_graph_code", 'clone_graph_assessment')
-builder.add_edge("clone_graph_real_world", "clone_graph_assessment")
+builder.add_edge("clone_graph_conceptual", 'ask_human')
+builder.add_edge("clone_graph_code", 'ask_human')
+builder.add_edge("clone_graph_real_world", "ask_human")
 
 builder.add_edge("ask_human", "clone_graph_assessment")
 
 
 builder.add_node(clone_graph_assessment)
 builder.add_conditional_edges("clone_graph_assessment", assessment_router, path_map=[
-                              'ask_human', 'clone_graph_conceptual', 'clone_graph_code', 'clone_graph_real_world'])
+                                'clone_graph_conceptual', 'clone_graph_code', 'clone_graph_real_world'])
 
 
 builder.add_edge("ask_human", "__end__")

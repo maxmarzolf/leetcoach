@@ -24,7 +24,7 @@ class InputState:
 class State(InputState):
     current_node: str = field(default='')
     next_node: str = field(default='__start__')
-    first_pass: bool = field(default=True)
+    human_required: bool = field(default=False)
 
 
 @dataclass
