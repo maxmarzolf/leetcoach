@@ -1,14 +1,16 @@
 from datetime import datetime, timezone
-from typing import List, Dict, Literal, cast, Optional
+from typing import List, Dict, Literal, cast
 import random
 
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, HumanMessage
-from langgraph.types import interrupt, Command
+from langgraph.types import interrupt
 
 from react_agent.configuration import Configuration
 from react_agent.utils import load_chat_model
 from react_agent.state import State
+
+import dataclasses
 
 
 async def ask_human(state: State) -> HumanMessage:
@@ -103,10 +105,7 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
     """
     Updates the state. MUST set state.next_node for the assessment_router().
     """
-    messages = state.messages
     next_node = ""
-    current_node = state.current_node
-
 
     configuration = Configuration.from_runnable_config(config)
     model = load_chat_model(configuration.model)
@@ -121,42 +120,13 @@ async def clone_graph_assessment(state: State, config: RunnableConfig) -> State:
         ),
     )
 
+    if "evaluation: user is proficient" in response.content:
+        nodes = ['clone_graph_code', 'clone_graph_real_world',
+                 'clone_graph_conceptual']
+        next_node = random.choice(
+            [n for n in nodes if n != state.current_node]
+        )
 
-    if 'evaluation: user is proficient' in response.content and state.current_node == 'clone_graph_conceptual':
-        next_node = random.choice(['clone_graph_code', 'clone_graph_real_world'])
-
-        return {
-            "messages": messages + [response],
-            "next_node": next_node, 
-            "current_node": current_node
-        }  
-
-    elif 'evaluation: user is proficient' in response.content and state.current_node == 'clone_graph_code':
-        next_node = random.choice(['clone_graph_conceptual', 'clone_graph_real_world'])
-
-        return {
-            "messages": messages + [response],
-            "next_node": next_node, 
-            "current_node": current_node
-        }  
-
-    elif 'evaluation: user is proficient' in response.content and state.current_node == 'clone_graph_real_world':
-        next_node = random.choice(['clone_graph_conceptual', 'clone_graph_code'])
-
-        return {
-            "messages": messages + [response],
-            "next_node": next_node, 
-            "current_node": current_node
-        }
-    
+        return dataclasses.replace(state, messages=state.messages + [response], next_node=next_node)
     else:
-
-        return {
-            "messages": messages + [response],
-            "next_node": current_node, 
-            "current_node": current_node
-        }  
-
-
-
-
+        return dataclasses.replace(state, messages=state.messages + [response], next_node=state.current_node)
