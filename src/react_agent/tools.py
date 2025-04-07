@@ -13,7 +13,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import InjectedToolArg
 
-from react_agent.configuration import Configuration
+from config import Configuration
 
 
 async def search(query: str, *, config: Annotated[RunnableConfig, InjectedToolArg]) -> Optional[list[dict[str, Any]]]:

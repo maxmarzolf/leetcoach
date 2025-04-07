@@ -1,4 +1,4 @@
-from react_agent.configuration import Configuration
+from react_agent.config import Configuration
 
 
 def test_configuration_empty() -> None:

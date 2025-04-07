@@ -6,7 +6,7 @@ from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import interrupt
 
-from react_agent.configuration import Configuration
+from react_agent.config import Configuration
 from react_agent.utils import load_chat_model
 from react_agent.state import State
 
@@ -34,8 +34,7 @@ def assessment_router(state: State) -> Literal["clone_graph_conceptual", "clone_
 
 async def clone_graph_conceptual(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
-
-    model = load_chat_model(configuration.model)
+    model = load_chat_model(config.model)
 
     system_message = configuration.CLONE_GRAPH_133_CONCEPTUAL.format(
         system_time=datetime.now(tz=timezone.utc).isoformat()
@@ -57,7 +56,6 @@ async def clone_graph_conceptual(state: State, config: RunnableConfig) -> Dict[s
 
 async def clone_graph_code(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
-
     model = load_chat_model(configuration.model)
 
     system_message = configuration.CLONE_GRAPH_133_CODE.format(
@@ -80,7 +78,6 @@ async def clone_graph_code(state: State, config: RunnableConfig) -> Dict[str, Li
 
 async def clone_graph_real_world(state: State, config: RunnableConfig) -> Dict[str, List[AIMessage]]:
     configuration = Configuration.from_runnable_config(config)
-
     model = load_chat_model(configuration.model)
 
     system_message = configuration.CLONE_GRAPH_133_REAL_WORLD.format(
